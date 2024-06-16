@@ -1,0 +1,21 @@
+实现功能：1、申请入会   2、订单管理   3、服务信息报反馈
+这是专车司机登陆后跳转到的专车司机页面，选用sidebar分别设计三个页面：
+页面设计：页面1：申请入会 对于一名专车司机，他的工作逻辑：注册/登录账号——申请入会——成为橙际专车的专车司机——接单。在专车司机登录账号连接后台数据库，
+              以司机的username检索drivers表，
+              检索drivers表的name一列是否有对应的username存在，有两个判断：
+              drivers表中是否有当前司机username对应的行（drivers.name==username）存在：
+                 若不存在，则在drivers表中新插入一行，driver_id按序增加，将username填入name一列，并返回页面1，从drivers表中获取name==username时的drivers_id，赋给全局变量drivers_id
+                 若存在，则还有两个判断，主要判断username所在行是否全都不为空
+                   找到的数据行全都不为空，则视作已经入会成为一名专车司机，可以接单，此时将drivers表中username所在一行全部展示出来，并从drivers表中获取name==username时的drivers_d，赋给全局变量drivers_id；
+                   若数据行存在空值列，则说明还没有成为专车司机，需要对资料编辑并提交申请。此时给出一系列输入框，分别是name，phone，address，city，license_numnber,vehicle_plate,name，phone，address，city写入users表的对应数据列中，phone，address，city，license_numnber,vehicle_plate,写入drivers表的对应数据列中。提示成功并将两个表的内容输出展示；并且从drivers表中获取name==username时的drivers_id，赋给全局变量drivers_id。
+        页面2：订单管理，进入该页面后，连接数据库访问orders表，查询表中driver-id列中是否存在司机的driver-id，
+              orders表中的订单有三种状态分别是待确认、进行中、已完成。订单管理页面需要连接数据库从orders表中查询是否存在该司机的订单，然后展示已完成和待确认的订单。
+              页面固定展示已完成的订单，status==“已完成”的记录行全部展示出来，以小页面展示，每页展示最多5行。
+              若存在该司机的订单且status==“待确认”：展示出该列的信息并给出两个按钮“接单”和“拒绝订单”，
+                当点击接单时，将数据库中该行的status由”待确认“修改为“进行中”，提示“接单成功，请按时开始行程”，然后在service_reports新建一行，
+                  依次写入user-id和driver-id，report_details留空并刷新页面，停留在页面2
+                当点击“拒绝订单”时，将数据库中该行数据删除，提示“已拒绝订单”，并刷新页面，停留在页面2
+        页面3：服务信息反馈   进入该页面后连接数据库，查询orders表中是否存在该司机的订单并且status为“进行中”的记录，
+                若不存在该记录，则提示“无待反馈订单”
+                若存在这样的记录，则展示该记录行的所有内容，并给出“服务信息反馈”输入框，
+                司机输入文字并点击“提交反馈”按钮后将输入框的内容写入service_reports表的“reportt_details”列中

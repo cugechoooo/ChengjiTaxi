@@ -1,0 +1,92 @@
+-- 创建 drivers 表
+CREATE TABLE drivers (
+    driver_id SERIAL PRIMARY KEY,
+    name VARCHAR(50),
+    phone VARCHAR(20),
+    address TEXT,
+    city VARCHAR(50) NOT NULL,
+    license_number VARCHAR(20) NOT NULL,
+    vehicle_plate VARCHAR(20) NOT NULL
+);
+
+-- 创建 orders 表
+CREATE TABLE orders (
+    order_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    driver_id INTEGER NOT NULL REFERENCES drivers(driver_id),
+    start_location VARCHAR(100),
+    end_location VARCHAR(100),
+    reservation_date DATE,
+    reservation_time TIME,
+    status VARCHAR(20) DEFAULT 'pending',
+    city VARCHAR(50) NOT NULL,
+    trip_distance NUMERIC(10, 2),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (driver_id) REFERENCES drivers(driver_id)
+);
+
+-- 创建 users 表
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    user_type VARCHAR(20) NOT NULL,
+    name VARCHAR(50),
+    phone VARCHAR(20),
+    address TEXT,
+    city VARCHAR(50) NOT NULL
+);
+
+-- 创建 reservations 表
+CREATE TABLE reservations (
+    reservation_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    start_location VARCHAR(100),
+    end_location VARCHAR(100),
+    reservation_date DATE,
+    reservation_time TIME,
+    status VARCHAR(20) DEFAULT 'pending',
+    city VARCHAR(50) NOT NULL,
+    trip_distance NUMERIC(10, 2),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- 创建 payments 表
+CREATE TABLE payments (
+    payment_id SERIAL PRIMARY KEY,
+    reservation_id INTEGER NOT NULL REFERENCES reservations(reservation_id),
+    payment_amount NUMERIC(10, 2) NOT NULL,
+    payment_status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id)
+);
+
+-- 创建 reviews 表
+CREATE TABLE reviews (
+    review_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    trip_id INTEGER NOT NULL REFERENCES trips(trip_id),
+    rating SMALLINT CHECK (rating >= 1 AND rating <= 5),
+    review_text TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (trip_id) REFERENCES trips(trip_id)
+);
+
+-- 创建 trips 表
+CREATE TABLE trips (
+    trip_id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL REFERENCES orders(order_id),
+    status VARCHAR(20) DEFAULT 'pending',
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+
+-- 创建 service_reports 表
+CREATE TABLE service_reports (
+    report_id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL REFERENCES orders(order_id),
+    driver_id INTEGER NOT NULL REFERENCES drivers(driver_id),
+    report_details TEXT,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (driver_id) REFERENCES drivers(driver_id)
+);
+
+

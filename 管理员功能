@@ -1,0 +1,18 @@
+管理员身份页面要实现的功能：
+1）专车组织与管理；
+2）制定用车计划；
+3）用车服务跟踪与评价；
+4）第三方支付服务；
+5）订单管理
+页面设计：
+   页面一：专车组织与管理，查询drivers表，展示每一行数据的driver_id,name,license_number,vehicle_plate
+
+   页面二：制定用车计划，暂无计划，展示标题
+
+   页面三：用车服务追踪与评价，查询reviews表，统计所有trip-id相同的的rating一列的平均分，注意可能存在trip-id相同的，
+        然后以司机（driver-name）：平均分（平均rating）的格式依次展示，
+        driver-name要先通过trip-id查询trips表中的order-id，然后利用order-id查询orders表中的driver-id，最后通过get_driver_name(driver_id)获取
+
+   页面四：第三方支付服务，暂无想法，先展示标题
+
+   页面四：订单管理，查看orders表，并先利用表中的driver-id通过get_driver_name(driver_id)获取司机名字，然后展示orders表的每一行数据，司机名字要放在第一列

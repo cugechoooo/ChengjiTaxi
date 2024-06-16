@@ -1,0 +1,20 @@
+主要功能有：1、提交用车预约，提交预约后支付费用 给出一个“确认支付”按钮，点击后视作支付成功，支付成功跳转到1，随后将写入数据库order表中status默认为待确认，
+     并在reviews表中创建一行新纪录，只记录user_id,driver_id,  rating和review_text留空。
+          2、评价行程 检索数据库reviews表中user_id与用户自身user_id一致并且rating为空的行，对该行进行评价
+          3、编辑资料
+sidebar三个选项，分别为1、提交用车预约；2、评价行程；3、编辑资料
+
+先写一个行程分析函数，传入参数user-id、start-location、end-location，检索driver表中司机所在城市与start-location一致的数据行，获取该行的driver-id，
+        若不存在符合的driver-id，提示无合适的专车司机并返回false；若存在合适的driver-id，则向数据库中的orders表中依次写入user-id、driver-id、start-location、end-location、
+        reservation-date、reservation-time，  status（默认为“待确认”）、city，trip-distance（“默认为45”），
+        然后查询orders表中user-id和传入参数一致且status==“待确认”的那行数据行（即刚刚新建的那一行），将该行数据的driver-id和order-id同时作为参数返回。
+对于页面1：提交用车预约页面，给出输入框分别是：出发地start-location、目的地end-location、
+        出发日期reservation-date、出发时间reservation-time，点击预约用车后调用行程分析函数，这时候需要
+        若返回false则提示无合适司机，若返回true则提示预约成功并返回预约用车页面。
+        并在reviews表中创建一行新纪录，只记录user_id,driver_id,  rating和review_text留空。
+对于页面2：评价行程页面，选择评价行程页面后， 检索数据库reviews表中user_id与用户自身user_id一致并且rating为空的行，
+        若存在这样的数据行则给出rating打分框（1~5分）以及评价输入框（记作review_text），点击“确认评价”后分别写入reviews表中对应的user_id、rating、review_text中
+        完成后跳出评价完成提示并刷新页面
+        若不存在则提示无可评价行程
+对于页面3：读取数据库中users表给出相应username，password，user_type（selectbos，分别是用车人、管理员、专车司机），name（无用不管他），phone，address，city的输入框，
+        输入框中默认显示数据库原有内容，点击确认修改按钮后将以上内容依次写入数据库对应user-id的对应属性列中。
