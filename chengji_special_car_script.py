@@ -38,7 +38,7 @@ def init():
 connection = init()
 
 # 注册新用户
-def register_user(connection, user_type, username, password,city):
+def register_user(connection, user_type, username, password, city):
     cursor = connection.cursor()
     try:
         # 直接存储密码的明文
@@ -78,6 +78,7 @@ LOGIN_STATE = 'login'
 if 'state' not in st.session_state:
     st.session_state['state'] = INITIAL_STATE
     st.session_state['user_id'] = None
+    st.session_state['user_type'] = None
 
 # 显示页面标题
 st.title('嘟嘟打车服务平台')
@@ -122,8 +123,8 @@ def session_init():
 if st.session_state['state'] == LOGIN_STATE:
     username = st.text_input('请输入用户名', key='username')
     password = st.text_input('请输入密码', type='password', key='password')
-    st.write('用户名',username)
-    st.write('密码',password)
+    st.write('用户名', username)
+    st.write('密码', password)
     user_type = login_user(connection, username, password)
     # 获取user_id
     user_id = get_id(connection, username)  # 传入连接和用户名参数来获取用户 ID
@@ -135,14 +136,11 @@ if st.session_state['state'] == LOGIN_STATE:
         st.write('没有找到对应的用户id')  # 如果没有结果，则输出提示信息
     st.write(user_type)
     if user_type == '用车人':
-        # 在需要的地方添加延迟
-        # time.sleep(1)  # 延迟一秒钟
-
         empty.empty()
-        st.write('欢迎您，',username)
+        st.write('欢迎您，', username)
 
+        st.session_state['user_type'] = 'customer'
         customer_interface.show_customer_interface()
-        st.experimental_set_query_params(page='customer_interface')
 
     elif user_type == '专车司机':
         empty.empty()
@@ -150,8 +148,8 @@ if st.session_state['state'] == LOGIN_STATE:
         # time.sleep(1)  # 延迟一秒钟
         # st.experimental_rerun()  # 强制刷新
         st.write('欢迎您，', username)
+        st.session_state['user_type'] = 'driver'
         driver_interface.show_driver_interface()
-        st.experimental_set_query_params(page='driver_interface')
 
     elif user_type == '平台管理员':
         empty.empty()
@@ -159,14 +157,13 @@ if st.session_state['state'] == LOGIN_STATE:
         # time.sleep(1)  # 延迟一秒钟
         # st.experimental_rerun()  # 强制刷新
         st.write('欢迎您，', username)
+        st.session_state['user_type'] = 'admin'
         admin_interface.show_admin_interface()
-        st.experimental_set_query_params(page='admin_interface')
 
     else:
         empty.empty()
         st.error('登录失败，请检查用户名和密码。')
         st.session_state['state'] = INITIAL_STATE
-        time.sleep(1)  # 延迟一秒钟
         # st.experimental_rerun()  # 强制刷新
     # cur.close()
 

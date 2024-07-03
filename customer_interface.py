@@ -1,6 +1,9 @@
 import streamlit as st
 import psycopg2
+import requests
 
+# HTML保存在map.html文件中
+html_file_path = 'templates/map.html'
 
 def show_customer_interface():
     user_id = st.session_state['user_id']
@@ -20,12 +23,45 @@ def show_customer_interface():
         dbname=database,
         user=username,
         password=password
-
     )
     cur = conn.cursor()
 
+    # 高德地图API密钥
+    API_KEY = '2d13473a878ad6c0b817d45b715485f0'
+
+    def get_route(api_key, start_location, end_location):
+        url = "https://restapi.amap.com/v3/direction/driving"
+        params = {
+            "origin": start_location,
+            "destination": end_location,
+            "key": api_key,
+        }
+        try:
+            response = requests.get(url, params=params, timeout=10)  # 设置超时时间为10秒
+            if response.status_code == 200:
+                result = response.json()
+                print("返回的JSON数据：", result)
+                if result["status"] == "1":  # 高德地图API返回状态码为"1"表示成功
+                    # 解析结果并返回距离信息
+                    distance = result["route"]["paths"][0]["distance"]  # 获取距离（单位：米）
+                    duration = result["route"]["paths"][0]["duration"]  # 获取预计时间（单位：秒）
+                    return distance, duration
+                else:
+                    print("路线规划失败，状态码：", response.status_code)
+            else:
+                print(f"请求失败，状态码：{response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"请求异常：{e}")
+        return None
+
     # 定义行程分析函数
     def analyze_trip(user_id, start_location, end_location, reservation_date, reservation_time):
+        distance = get_route(API_KEY, start_location, end_location)
+        if distance is None:
+            st.error("无法获取行程距离")
+            return False, None, None
+
+        distance_km = distance / 1000  # 将米转换为公里
         cur.execute("SELECT driver_id FROM drivers WHERE city=%s", (start_location,))
         driver = cur.fetchone()
 
@@ -35,9 +71,9 @@ def show_customer_interface():
         else:
             cur.execute(
                 "INSERT INTO orders (user_id, driver_id, start_location, end_location, reservation_date, "
-                "reservation_time, status, city, trip_distance) VALUES (%s, %s, %s, %s, %s, %s, '待确认', %s, "
-                "45) RETURNING driver_id, order_id",
-                (user_id, driver[0], start_location, end_location, reservation_date, reservation_time, start_location))
+                "reservation_time, status, city, trip_distance) VALUES (%s, %s, %s, %s, %s, %s, '待确认', %s, %s) RETURNING driver_id, order_id",
+                (user_id, driver[0], start_location, end_location, reservation_date, reservation_time, start_location,
+                 distance_km))
             conn.commit()
 
             row = cur.fetchone()
@@ -55,19 +91,17 @@ def show_customer_interface():
         end_location = st.text_input("目的地")
         reservation_date = st.date_input("出发日期")
         reservation_time = st.time_input("出发时间")
+
         if st.button("预约用车"):
-            isTripOk, driver_id, orders_id = analyze_trip(user_id, start_location, end_location, reservation_date,
-                                                          reservation_time)
+            isTripOk, driver_id, orders_id = analyze_trip(user_id, start_location, end_location, reservation_date, reservation_time)
             if isTripOk:
                 # 向trips表中新建一行数据
-                cur.execute("INSERT INTO trips (order_id, status) VALUES (%s, '待确认') RETURNING trip_id",
-                            (orders_id,))
+                cur.execute("INSERT INTO trips (order_id, status) VALUES (%s, '待确认') RETURNING trip_id", (orders_id,))
                 trip_row = cur.fetchone()
                 if trip_row:
                     trip_id = trip_row[0]
                     # 在reviews表中创建一行新纪录
-                    cur.execute("INSERT INTO reviews (user_id, trip_id) VALUES (%s, %s)",
-                                (user_id, trip_id))
+                    cur.execute("INSERT INTO reviews (user_id, trip_id) VALUES (%s, %s)", (user_id, trip_id))
                     conn.commit()
                     # 返回预约用车页面
                     st.write("返回预约用车页面")
@@ -75,6 +109,17 @@ def show_customer_interface():
                     st.error("创建行程失败")
             else:
                 st.error("无适合司机，请重新预约")
+
+        # 当用户点击按钮时，获取并显示路线规划信息
+        if st.button("规划路线"):
+            # 使用高德地图API规划路线
+            route_info = get_route(API_KEY, start_location, end_location)
+            if route_info:
+                # 显示路线规划信息
+                st.write(f"距离: {route_info['distance']} 米")
+                st.write(f"预计时间: {route_info['duration']} 秒")
+            else:
+                st.error("无法获取路线规划信息")
 
     # 页面2：行程评价
     def page_2(user_id):
@@ -190,15 +235,19 @@ def show_customer_interface():
     elif page == "支付":
         page_4(user_id)
 
-    '''
-    elif page=="退出登录":
-        from chengji_special_car_script import session_init
-        session_init()
-        st.experimental_rerun()# 强制刷新
-        cur.close()
-        conn.close()
-    '''
+        # 嵌入高德地图路线规划的HTML组件
+        st.components.v1.html(
+            open(html_file_path, 'r').read(),  # 读取HTML文件内容
+            height=600,  # 指定高度，根据需要调整
+            width='100%',  # 宽度调整为100%，以适应页面
+            scrolling=False  # 不允许滚动
+        )
 
-    # 关闭数据库连接
-    cur.close()
-    conn.close()
+    # 运行主程序
+    if __name__ == '__main__':
+        st.set_page_config(
+            page_title="用车人界面",
+            layout="wide",
+            initial_sidebar_state="expanded",  # 初始状态：collapsed/expanded/auto
+        )
+        show_customer_interface()

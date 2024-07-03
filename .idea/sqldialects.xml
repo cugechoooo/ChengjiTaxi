@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/admin_interface.py" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/chengji_special_car_script.py" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/customer_interface.py" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/database.py" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/driver_interface.py" dialect="PostgreSQL" />
+    <file url="PROJECT" dialect="PostgreSQL" />
+  </component>
+</project>

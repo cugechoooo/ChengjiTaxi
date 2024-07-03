@@ -8,7 +8,7 @@ import os
 # 数据库连接配置
 hostname = 'localhost'
 port = 5432
-database = 'chengji_special_car'  # 请替换为您的数据库名称
+database = 'chengji_special_car'
 username = 'postgres'
 password = '123456@cug'
 

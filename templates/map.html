@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高德地图</title>
+    <style>
+        html, body, #container {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=2d13473a878ad6c0b817d45b715485f0"></script>
+</head>
+<body>
+    <div id="container"></div>
+    <script>
+        var map = new AMap.Map('container', {
+            zoom: 15, // 初始化地图层级
+            center: [116.404, 39.915] // 初始化地图中心点
+        });
+    </script>
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>高德地图</title>-->
+<!--    <style>-->
+<!--        html, body, #container {-->
+<!--            height: 100%;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--        }-->
+<!--    </style>-->
+<!--    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=2d13473a878ad6c0b817d45b715485f0"></script>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <div id="container"></div>-->
+
+<!--    <form id="route-form">-->
+<!--        <label for="start">起点:</label>-->
+<!--        <input type="text" id="start" name="start" required>-->
+<!--        <label for="end">终点:</label>-->
+<!--        <input type="text" id="end" name="end" required>-->
+<!--        <button type="submit">规划路线</button>-->
+<!--    </form>-->
+
+<!--    <script>-->
+<!--        var map = new AMap.Map('container', {-->
+<!--            zoom: 15, // 初始化地图层级-->
+<!--            center: [116.404, 39.915] // 初始化地图中心点-->
+<!--        });-->
+
+<!--        // 添加地图控件-->
+<!--        map.addControl(new AMap.Scale());-->
+<!--        map.addControl(new AMap.OverView());-->
+<!--        map.addControl(new AMap.MapType());-->
+<!--        map.addControl(new AMap.ToolBar());-->
+
+<!--        // 开启鼠标滚轮缩放-->
+<!--        map.plugin(['AMap.MouseTool'], function() {-->
+<!--            var mouseTool = new AMap.MouseTool(map);-->
+<!--            mouseTool.scrollWheelZoom(true);-->
+<!--        });-->
+
+<!--        // 路线规划-->
+<!--        document.getElementById('route-form').addEventListener('submit', function(e) {-->
+<!--            e.preventDefault();-->
+<!--            var start = document.getElementById('start').value;-->
+<!--            var end = document.getElementById('end').value;-->
+
+<!--            // 使用高德地图API规划路线-->
+<!--            AMap.plugin('AMap.Driving', function() {-->
+<!--                var driving = new AMap.Driving({-->
+<!--                    map: map-->
+<!--                });-->
+<!--                driving.search([-->
+<!--                    {keyword: start, city: '全国'},-->
+<!--                    {keyword: end, city: '全国'}-->
+<!--                ]);-->
+<!--            });-->
+<!--        });-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->
+
+
